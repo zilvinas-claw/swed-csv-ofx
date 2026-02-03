@@ -1,20 +1,30 @@
-# swed-csv-ofx
-This app purpose is to import your bank account statement to [You Need a Budget](https://www.youneedabudget.com/) app (aka YNAB).
-Working version is deployed [here](https://swed-ynab.herokuapp.com/), you are free to use it if you like. 
-All the conversions are done in the browser, so your data won't leave your computer.
+# Bank CSV → OFX Converter
 
-To use it you do the following:
-1. Export your account statement to CSV file
-2. Open CSV file with this tool
-3. Download OFX file
-4. Import downloaded OFX file to YNAB.
+Browser-only tool that converts bank CSV exports to OFX format for [YNAB](https://www.youneedabudget.com/) import. All conversions happen client-side — no data leaves your computer.
 
-Currently it works with LTSwedbank, Revolut and N26 CSV formats. Format is detected automatically.
+## Supported banks
 
-## Development how to
-Start docker: `docker run -p 8001:8001 -it -v $(pwd):/home/boot/repo docker.io/zhilvis/boot-base bash`, start boot in dev mode: `cd /home/boot/repo;boot dev`
+- **Swedbank LT** — semicolon-separated CSV export
+- **Revolut** — new comma-separated CSV format
+- **N26** — CSV export
+- **Citadele** — CSV export
 
-Open browser with `http://localhost:8001/` once the environment has started
+## Live version
 
-## Converting CAMT.53 to CSV
-`xsltproc camt2csv.xsl <statement.xml> > statement.csv`
+Deployed on GitHub Pages: [https://zhilvis.github.io/swed-csv-ofx/](https://zhilvis.github.io/swed-csv-ofx/)
+
+## Development
+
+```bash
+npm install
+npm run dev      # Start dev server
+npm run build    # Build to docs/ for GitHub Pages
+npm test         # Run tests
+```
+
+## Stack
+
+- **Vite** + **TypeScript**
+- **PapaParse** for CSV parsing
+- **Vitest** for testing
+- Deployed via GitHub Pages from the `docs/` folder

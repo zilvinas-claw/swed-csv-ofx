@@ -1,1 +1,0 @@
-web: boot host

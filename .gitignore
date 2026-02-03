@@ -1,4 +1,5 @@
-/.boot
+node_modules/
+.boot
 /target
 /.nrepl-port
 /.repl-history
