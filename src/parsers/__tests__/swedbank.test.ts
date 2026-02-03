@@ -52,4 +52,33 @@ describe('Swedbank parser', () => {
     expect(stmt.from).toBe('2016-08-22');
     expect(stmt.to).toBe('2016-08-22');
   });
+
+  it('parses Fondų pirkimas with fund name as payee', () => {
+    const csv = `"Sąskaitos Nr.","","Data","Gavėjas","Paaiškinimai","Suma","Valiuta","D/K","Įrašo Nr.","Kodas","Įmokos kodas","Dok. Nr.","Kliento kodas mokėtojo IS","Kliento kodas","Pradinis mokėtojas","Galutinis gavėjas",
+"LT697300010070459808","20","2025-12-17","","Fondų pirkimas 10611163 SWRAGLC SWEDBANK ROBUR ACCESS EDGE GLOBAL C","2000.00","EUR","D","2025121703560882","M","10611163","","",`;
+    const stmt = parseStmt(csv);
+    expect(stmt.trx.length).toBe(1);
+    expect(stmt.trx[0].payee).toBe('SWEDBANK ROBUR ACCESS EDGE GLOBAL C');
+    expect(stmt.trx[0].amount).toBe('-2000.00');
+  });
+
+  it('parses Bazinio (bank fee) with Swedbank as payee', () => {
+    const csv = `"Sąskaitos Nr.","","Data","Gavėjas","Paaiškinimai","Suma","Valiuta","D/K","Įrašo Nr.","Kodas","Įmokos kodas","Dok. Nr.","Kliento kodas mokėtojo IS","Kliento kodas","Pradinis mokėtojas","Galutinis gavėjas",
+"LT697300010070459808","20","2025-12-04","","Bazinio paslaugų plano Privačiosios bankininkystės klientams mokestis 2025.11","1.00","EUR","D","2025120400571139","M","","","",`;
+    const stmt = parseStmt(csv);
+    expect(stmt.trx.length).toBe(1);
+    expect(stmt.trx[0].payee).toBe('Swedbank');
+  });
+
+  it('parses stock ticker as payee', () => {
+    const csv = `"Sąskaitos Nr.","","Data","Gavėjas","Paaiškinimai","Suma","Valiuta","D/K","Įrašo Nr.","Kodas","Įmokos kodas","Dok. Nr.","Kliento kodas mokėtojo IS","Kliento kodas","Pradinis mokėtojas","Galutinis gavėjas",
+"LT697300010070459808","20","2025-12-17","","IGN1L -3000@20.65/SE:250709656 VSE","61950.00","EUR","K","2025121701085469","M","","","",
+"LT697300010070459808","20","2025-12-17","","TEL1L -600@1.87501667/SE:252554224 VSE","1125.01","EUR","K","2025121701085473","M","","","",
+"LT697300010070459808","20","2025-12-17","","ROE1L -30749@.91513643/SE:250020348 VSE","28139.53","EUR","K","2025121701395139","M","","","",`;
+    const stmt = parseStmt(csv);
+    expect(stmt.trx.length).toBe(3);
+    expect(stmt.trx[0].payee).toBe('IGN1L');
+    expect(stmt.trx[1].payee).toBe('TEL1L');
+    expect(stmt.trx[2].payee).toBe('ROE1L');
+  });
 });

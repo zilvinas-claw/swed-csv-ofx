@@ -18,6 +18,17 @@ function cashTrn(memo: string): { memo: string; payee: string } {
   return { memo: cardMemo(memo), payee: cardMemo(memo) };
 }
 
+// Extract fund name from memo like "Fondų pirkimas 10611163 SWRAGLC SWEDBANK ROBUR ACCESS EDGE GLOBAL C"
+function fundPayee(memo: string): string {
+  // Skip "Fondų pirkimas <id> <ticker>" → extract the human-readable name after the ticker
+  const parts = memo.split(/\s+/);
+  // parts: ["Fondų", "pirkimas", "<id>", "<TICKER>", ...name parts]
+  return parts.length > 4 ? parts.slice(4).join(' ') : parts.slice(3).join(' ');
+}
+
+// Match stock ticker patterns like "IGN1L -3000@20.65/SE:250709656 VSE"
+const STOCK_TICKER_RE = /^[A-Z0-9]{3,6}\s+-?\d+@/;
+
 function parseMemo(memo: string): Partial<{ payee: string; memo: string; date: string }> {
   const firstWord = memo.split(/\s+/)[0];
   switch (firstWord) {
@@ -26,17 +37,25 @@ function parseMemo(memo: string): Partial<{ payee: string; memo: string; date: s
     case 'Kortelės':
     case 'Saugumo':
       return { payee: 'Bank', memo };
+    case 'Bazinio':
+      return { payee: 'Swedbank', memo };
     case 'Paskolos':
     case 'Sukauptos':
       return { payee: 'Paskola', memo };
     case 'VP':
       return { payee: 'Stocks', memo };
+    case 'Fondų':
+      return { payee: fundPayee(memo), memo };
     case 'PIRKINYS':
     case 'GRĄŽINIMAS':
       return cardTrn(memo);
     case 'GRYNIEJI':
       return { ...cashTrn(memo), payee: 'GRYNIEJI' };
     default:
+      // Stock ticker: "IGN1L -3000@20.65/SE:250709656 VSE"
+      if (STOCK_TICKER_RE.test(memo)) {
+        return { payee: firstWord, memo };
+      }
       return { memo };
   }
 }
