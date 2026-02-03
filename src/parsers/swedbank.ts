@@ -65,7 +65,7 @@ function rowToTransaction(row: string[]): Transaction {
 
 export function parseStmt(csv: string): Statement {
   const result = Papa.parse<string[]>(csv, {
-    delimiter: ';',
+    delimiter: ',',
     quoteChar: '"',
     header: false,
     skipEmptyLines: true,
